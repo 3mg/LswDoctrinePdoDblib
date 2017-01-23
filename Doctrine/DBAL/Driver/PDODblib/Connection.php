@@ -21,6 +21,8 @@
 
 namespace Lsw\DoctrinePdoDblib\Doctrine\DBAL\Driver\PDODblib;
 
+use Doctrine\DBAL\Driver\PDOException;
+
 /**
  * PDODblib Connection implementation.
  *
@@ -30,6 +32,22 @@ class Connection extends \Doctrine\DBAL\Driver\PDOConnection implements \Doctrin
 
     protected $_pdoTransactionsSupport = null;
     protected $_pdoLastInsertIdSupport = null;
+
+
+    /**
+     * Connection constructor.
+     */
+    public function __construct($dsn, $user = null, $password = null, array $options = null)
+    {
+        parent::__construct($dsn, $user, $password, $options);
+
+        $this->exec("SET ANSI_WARNINGS ON");
+        $this->exec("SET ANSI_PADDING ON");
+        $this->exec("SET ANSI_NULLS ON");
+        $this->exec("SET QUOTED_IDENTIFIER ON");
+        $this->exec("SET CONCAT_NULL_YIELDS_NULL ON");
+    }
+
     /**
      * @override
      */
