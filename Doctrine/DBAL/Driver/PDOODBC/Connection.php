@@ -19,7 +19,7 @@
  * <http://www.doctrine-project.org>.
  */
 
-namespace Lsw\DoctrinePdoDblib\Doctrine\DBAL\Driver\PDODblib;
+namespace Lsw\DoctrinePdoDblib\Doctrine\DBAL\Driver\PDOODBC;
 
 use Lsw\DoctrinePdoDblib\Doctrine\DBAL\Driver\BaseConnection;
 
@@ -28,7 +28,7 @@ use Lsw\DoctrinePdoDblib\Doctrine\DBAL\Driver\BaseConnection;
  *
  * @since 2.0
  */
-class Connection extends BaseConnection  {
+class Connection extends BaseConnection {
     /**
      * Connection constructor.
      */
@@ -36,12 +36,7 @@ class Connection extends BaseConnection  {
     {
         try {
             parent::__construct($dsn, $user, $password, $options);
-
-            $this->exec("SET ANSI_WARNINGS ON");
-            $this->exec("SET ANSI_PADDING ON");
-            $this->exec("SET ANSI_NULLS ON");
-            $this->exec("SET QUOTED_IDENTIFIER ON");
-            $this->exec("SET CONCAT_NULL_YIELDS_NULL ON");
+            $this->setAttribute(\PDO::ATTR_STATEMENT_CLASS, array('\Lsw\DoctrinePdoDblib\Doctrine\DBAL\Driver\PDOODBC\Statement', array()));
         } catch (\PDOException $exception) {
             self::pdoException($exception);
         }
