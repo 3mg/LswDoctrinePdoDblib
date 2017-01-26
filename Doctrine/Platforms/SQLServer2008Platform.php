@@ -2,6 +2,7 @@
 
 namespace Lsw\DoctrinePdoDblib\Doctrine\Platforms;
 use Doctrine\DBAL\Platforms\SQLServer2008Platform as SQLServer;
+use Doctrine\DBAL\Schema\TableDiff;
 
 class SQLServer2008Platform extends SQLServer
 {
@@ -33,5 +34,30 @@ class SQLServer2008Platform extends SQLServer
     public function getDateTimeTzFormatString()
     {
         return $this->getDateTimeFormatString();
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    public function getAlterTableSQL(TableDiff $diff)
+    {
+        $columnNames = array_keys($diff->changedColumns);
+
+        // Ignore 'unsigned' change as MSSQL don't support unsigned
+        foreach ($columnNames as $columnName) {
+            /* @var $columnDiff \Doctrine\DBAL\Schema\ColumnDiff */
+            $columnDiff = &$diff->changedColumns[$columnName];
+            $unsignedIndex = array_search('unsigned', $columnDiff->changedProperties);
+
+            if ($unsignedIndex !== false) {
+                unset($columnDiff->changedProperties[$unsignedIndex]);
+            }
+
+            if (count($columnDiff->changedProperties) == 0) {
+                unset($diff->changedColumns[$columnName]);
+            }
+        }
+
+        return parent::getAlterTableSQL($diff);
     }
 }
