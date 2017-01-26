@@ -43,14 +43,29 @@ class SQLServer2008Platform extends SQLServer
     {
         $columnNames = array_keys($diff->changedColumns);
 
-        // Ignore 'unsigned' change as MSSQL don't support unsigned
         foreach ($columnNames as $columnName) {
             /* @var $columnDiff \Doctrine\DBAL\Schema\ColumnDiff */
             $columnDiff = &$diff->changedColumns[$columnName];
+
+            // Ignore 'unsigned' change as MSSQL don't support unsigned
             $unsignedIndex = array_search('unsigned', $columnDiff->changedProperties);
 
             if ($unsignedIndex !== false) {
                 unset($columnDiff->changedProperties[$unsignedIndex]);
+            }
+
+            // As there is no property type hint for MSSQL, ignore type change if DB-Types are equal
+            $typeIndex = array_search('type', $columnDiff->changedProperties);
+
+            if ($typeIndex !== false) {
+                $fromColumn = $columnDiff->fromColumn;
+                $toColumn = $columnDiff->column;
+                $fromDBType = $fromColumn->getType()->getSQLDeclaration($fromColumn->toArray(), $this);
+                $toDBType = $toColumn->getType()->getSQLDeclaration($fromColumn->toArray(), $this);
+
+                if ($fromDBType == $toDBType) {
+                    unset($columnDiff->changedProperties[$typeIndex]);
+                }
             }
 
             if (count($columnDiff->changedProperties) == 0) {
