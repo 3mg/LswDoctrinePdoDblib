@@ -44,10 +44,7 @@ class Driver implements \Doctrine\DBAL\Driver {
     private function _constructPdoDsn(array $params) {
         $dsn = 'odbc:';
         if (isset($params['host'])) {
-            $dsn .= 'Server=' . $params['host'] . ';';
-        }
-        if (isset($params['port'])) {
-            $dsn .= 'Port=' . $params['port'] . ';';
+            $dsn .= 'Server=' . $params['host'] . (isset($params['port']) ? ','.$params['port'] : '') . ';';
         }
         if (isset($params['dbname'])) {
             $dsn .= 'Database=' . $params['dbname'] . ';';
