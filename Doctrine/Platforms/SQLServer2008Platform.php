@@ -75,4 +75,12 @@ class SQLServer2008Platform extends SQLServer
 
         return parent::getAlterTableSQL($diff);
     }
+
+    /**
+     * {@inheritDoc}
+     */
+    public function getClobTypeDeclarationSQL(array $field)
+    {
+        return 'NVARCHAR(MAX)';
+    }
 }
