@@ -26,4 +26,12 @@ class Statement extends PDOStatement implements \Doctrine\DBAL\Driver\Statement
 
         return $result;
     }
+
+    /**
+     * {@inheritdoc}
+     */
+    public function bindValue($name, $value, $type = null)
+    {
+        return parent::bindValue($name, $value, $type == \PDO::PARAM_BOOL ? \PDO::PARAM_INT : $type);
+    }
 }
