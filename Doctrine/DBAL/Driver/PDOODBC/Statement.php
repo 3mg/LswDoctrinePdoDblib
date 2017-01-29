@@ -21,10 +21,9 @@ class Statement extends PDOStatement implements \Doctrine\DBAL\Driver\Statement
      */
     public function execute($params = null)
     {
-        $result = parent::execute($params);
         $this->closeCursor();
 
-        return $result;
+        return parent::execute($params);
     }
 
     /**
@@ -32,6 +31,18 @@ class Statement extends PDOStatement implements \Doctrine\DBAL\Driver\Statement
      */
     public function bindValue($name, $value, $type = null)
     {
+        $this->closeCursor();
+
         return parent::bindValue($name, $value, $type == \PDO::PARAM_BOOL ? \PDO::PARAM_INT : $type);
+    }
+
+    /**
+     * {@inheritdoc}
+     */
+    public function bindParam($column, &$variable, $type = \PDO::PARAM_STR, $length = null, $driverOptions = null)
+    {
+        $this->closeCursor();
+
+        return parent::bindParam($column, $variable, $type, $length, $driverOptions);
     }
 }
