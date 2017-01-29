@@ -29,7 +29,7 @@ class Statement extends PDOStatement implements \Doctrine\DBAL\Driver\Statement
     /**
      * {@inheritdoc}
      */
-    public function bindValue($name, $value, $type = null)
+    public function bindValue($name, $value, $type = \PDO::PARAM_STR)
     {
         $this->closeCursor();
 

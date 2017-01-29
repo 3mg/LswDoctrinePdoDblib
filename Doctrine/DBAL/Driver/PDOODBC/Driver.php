@@ -79,14 +79,12 @@ class Driver implements \Doctrine\DBAL\Driver {
 
     public function getSchemaManager(\Doctrine\DBAL\Connection $conn) {
         if (class_exists('\\Doctrine\\DBAL\\Schema\\SQLServerSchemaManager')) {
-            return new \Doctrine\DBAL\Schema\SQLServerSchemaManager($conn);
+            return new \Lsw\DoctrinePdoDblib\Doctrine\DBAL\Schema\SQLServerSchemaManager($conn);
         }
 
         if (class_exists('\\Doctrine\\DBAL\\Schema\\MsSqlSchemaManager')) {
-            return new \PDODblibBundle\Doctrine\DBAL\Schema\PDODblibSchemaManager($conn);
+            return new \Lsw\DoctrinePdoDblib\Doctrine\DBAL\Schema\PDODblibSchemaManager($conn);
         }
-
-
     }
 
     public function getName() {

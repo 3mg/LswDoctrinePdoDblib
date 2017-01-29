@@ -20,21 +20,16 @@
 namespace Lsw\DoctrinePdoDblib\Doctrine\DBAL\Schema;
 
 /**
- * The PDO-based Dblib schema manager.
+ * SQL Server Schema Manager.
  *
  * @since 2.0
  */
-class PDODblibSchemaManager extends \Doctrine\DBAL\Schema\MsSqlSchemaManager {
+class SQLServerSchemaManager extends \Doctrine\DBAL\Schema\SQLServerSchemaManager {
 
     /**
      * {@inheritdoc}
      */
     protected function _getPortableTableColumnDefinition($tableColumn) {
-        // ensure upper case keys are there too...
-        foreach ($tableColumn as $key => $value) {
-            $tableColumn[strtoupper($key)] = $value;
-        }
-
         // ensure NVARCHAR(MAX) converts to TEXT type
         $dbType = strtok($tableColumn['type'], '(), ');
         $length = (int) $tableColumn['length'];
