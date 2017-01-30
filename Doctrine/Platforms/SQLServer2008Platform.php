@@ -46,21 +46,22 @@ class SQLServer2008Platform extends SQLServer
             }
 
             // As there is no property type hint for MSSQL, ignore type change if DB-Types are equal
-            $typeIndex = array_search('type', $columnDiff->changedProperties);
-            $lengthIndex = array_search('length', $columnDiff->changedProperties);
+            $props = array('type', 'length', 'default');
+            $changedPropIndexes = array();
 
-            if ($typeIndex !== false || $lengthIndex !== false) {
+            foreach ($props as $prop) {
+                $changedPropIndexes[] = array_search($prop, $columnDiff->changedProperties);
+            }
+
+            if (count($changedPropIndexes) > 0) {
                 $fromColumn = $columnDiff->fromColumn;
                 $toColumn = $columnDiff->column;
                 $fromDBType = $fromColumn->getType()->getSQLDeclaration($fromColumn->toArray(), $this);
                 $toDBType = $toColumn->getType()->getSQLDeclaration($fromColumn->toArray(), $this);
 
                 if ($fromDBType == $toDBType) {
-                    if ($typeIndex !== false) {
-                        unset($columnDiff->changedProperties[$typeIndex]);
-                    }
-                    if ($lengthIndex !== false) {
-                        unset($columnDiff->changedProperties[$lengthIndex]);
+                    foreach ($changedPropIndexes as $index) {
+                        unset($columnDiff->changedProperties[$index]);
                     }
                 }
             }
