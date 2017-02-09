@@ -52,6 +52,9 @@ class Driver implements \Doctrine\DBAL\Driver {
         if (isset($params['driverOptions']['driver'])) {
             $dsn .= 'Driver=' . $params['driverOptions']['driver'] . ';';
         }
+        if (isset($params['driverOptions']['MARS_Connection'])) {
+            $dsn .= 'MARS_Connection=Yes;';
+        }
         if (isset($params['charset'])) {
             $dsn .= 'charset=' . $params['charset'] . ';';
         }
