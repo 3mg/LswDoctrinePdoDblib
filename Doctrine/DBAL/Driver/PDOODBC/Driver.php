@@ -27,6 +27,10 @@ namespace Lsw\DoctrinePdoDblib\Doctrine\DBAL\Driver\PDOODBC;
  * @since 2.0
  */
 class Driver implements \Doctrine\DBAL\Driver {
+
+    /**
+     * {@inheritdoc}
+     */
     public function connect(array $params, $username = null, $password = null, array $driverOptions = array()) {
         return new Connection(
             $this->_constructPdoDsn($params),
@@ -96,6 +100,7 @@ class Driver implements \Doctrine\DBAL\Driver {
 
     public function getDatabase(\Doctrine\DBAL\Connection $conn) {
         $params = $conn->getParams();
+
         return $params['dbname'];
     }
 }

@@ -2,23 +2,38 @@
 
 namespace Lsw\DoctrinePdoDblib\Doctrine\Platforms;
 
+use Doctrine\DBAL\LockMode;
 use Doctrine\DBAL\Platforms\SQLServer2008Platform as SQLServer;
 use Doctrine\DBAL\Schema\TableDiff;
-use Doctrine\DBAL\Schema\Column;
 
 class SQLServer2008Platform extends SQLServer
 {
     /**
-     * {@inheritDoc}
+     * Adds ability to override lock hints from symfony config by using 'platform_service' option
+     *
+     * @var array
      */
-    protected function getVarcharTypeDeclarationSQLSnippet($length, $fixed)
-    {
-        $length = is_numeric($length) ? $length * 2 : $length;
-        if ($length > $this->getVarcharMaxLength() || $length < 0) {
-            $length = 'MAX';
-        }
+    protected $lockHints = array(
+        LockMode::NONE              => ' WITH (NOLOCK)',
+        LockMode::PESSIMISTIC_READ  => ' WITH (HOLDLOCK, ROWLOCK)',
+        LockMode::PESSIMISTIC_WRITE => ' WITH (UPDLOCK, ROWLOCK)',
+    );
 
-        return $fixed ? ($length ? 'NCHAR(' . $length . ')' : 'NCHAR(255)') : ($length ? 'NVARCHAR(' . $length . ')' : 'NVARCHAR(255)');
+    /**
+     * @param array $lockHints
+     */
+    public function setLockHints($lockHints)
+    {
+        $this->lockHints = $lockHints;
+    }
+
+    /**
+     * @param $lockMode
+     * @param $hint
+     */
+    public function setLockHint($lockMode, $hint)
+    {
+        $this->lockHints[$lockMode] = $hint;
     }
 
     /**
@@ -119,6 +134,41 @@ class SQLServer2008Platform extends SQLServer
         }
 
         return array_merge($sql, parent::getAlterTableSQL($diff));
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    public function appendLockHint($fromClause, $lockMode)
+    {
+        if (isset($this->lockHints[$lockMode])) {
+            return $fromClause.$this->lockHints[$lockMode];
+        }
+
+        return $fromClause;
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    protected function initializeDoctrineTypeMappings()
+    {
+        parent::initializeDoctrineTypeMappings();
+
+        $this->doctrineTypeMapping['hierarchyid'] = 'blob';
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    protected function getVarcharTypeDeclarationSQLSnippet($length, $fixed)
+    {
+        $length = is_numeric($length) ? $length * 2 : $length;
+        if ($length > $this->getVarcharMaxLength() || $length < 0) {
+            $length = 'MAX';
+        }
+
+        return $fixed ? ($length ? 'NCHAR(' . $length . ')' : 'NCHAR(255)') : ($length ? 'NVARCHAR(' . $length . ')' : 'NVARCHAR(255)');
     }
 
     /**
