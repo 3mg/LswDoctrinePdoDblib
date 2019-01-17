@@ -34,11 +34,28 @@ class BaseConnection extends \Doctrine\DBAL\Driver\PDOConnection implements \Doc
     /**
      * @override
      */
+    public function prepare($statement, array $driver_options = array())
+    {
+        return new StatementWrapper(parent::prepare($statement, $driver_options), $this, $driver_options);
+    }
+
+    public function prepareNonWrapped($statement, array $driver_options = array())
+    {
+        return parent::prepare($statement, $driver_options);
+    }
+
+    /**
+     * @override
+     */
     public function quote($value, $type = \PDO::PARAM_STR) {
         $val = parent::quote($value, $type);
 
         // Fix for a driver version terminating all values with null byte
         $val = rtrim($val, "\0");
+
+        if ($val === '' && ($type === \PDO::PARAM_STR || $type === null)) {
+            $val = "''";
+        }
 
         return $val;
     }
@@ -145,3 +162,4 @@ class BaseConnection extends \Doctrine\DBAL\Driver\PDOConnection implements \Doc
         throw $exception;
     }
 }
+
