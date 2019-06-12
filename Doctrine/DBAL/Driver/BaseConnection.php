@@ -34,9 +34,9 @@ class BaseConnection extends \Doctrine\DBAL\Driver\PDOConnection implements \Doc
     /**
      * @override
      */
-    public function prepare($statement, array $driver_options = array())
+    public function prepare($prepareString, $driverOptions = array())
     {
-        return new StatementWrapper(parent::prepare($statement, $driver_options), $this, $driver_options);
+        return new StatementWrapper(parent::prepare($prepareString, $driverOptions), $this, $driverOptions);
     }
 
     public function prepareNonWrapped($statement, array $driver_options = array())
@@ -156,7 +156,7 @@ class BaseConnection extends \Doctrine\DBAL\Driver\PDOConnection implements \Doc
     protected static function pdoException(\PDOException $exception)
     {
         if (class_exists('Doctrine\DBAL\Driver\PDOException')) {
-            throw new Doctrine\DBAL\Driver\PDOException($exception);
+            throw new \Doctrine\DBAL\Driver\PDOException($exception);
         }
 
         throw $exception;
