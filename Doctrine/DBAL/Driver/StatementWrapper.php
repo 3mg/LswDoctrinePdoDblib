@@ -3,12 +3,13 @@
 namespace Lsw\DoctrinePdoDblib\Doctrine\DBAL\Driver;
 
 use Doctrine\DBAL\Driver\ResultStatement;
+use Doctrine\DBAL\Driver\Statement;
 use Exception;
 use Traversable;
 
 /**
  */
-class StatementWrapper implements ResultStatement, \IteratorAggregate {
+class StatementWrapper implements Statement {
 
     /** @var \PDOStatement */
     private $stmt;
@@ -115,27 +116,37 @@ class StatementWrapper implements ResultStatement, \IteratorAggregate {
 
     public function setFetchMode($fetchMode, $arg2 = null, $arg3 = null)
     {
-        return $this->setFetchMode($fetchMode, $arg2, $arg3);
+        return $this->stmt->setFetchMode($fetchMode, $arg2, $arg3);
     }
 
     public function fetch($fetchMode = null, $cursorOrientation = PDO::FETCH_ORI_NEXT, $cursorOffset = 0)
     {
-        return $this->fetch($fetchMode, $cursorOrientation, $cursorOffset);
+        return $this->stmt->fetch($fetchMode, $cursorOrientation, $cursorOffset);
     }
 
     public function fetchAll($fetchMode = null, $fetchArgument = null, $ctorArgs = null)
     {
-        return $this->fetchAll($fetchMode, $fetchArgument, $ctorArgs);
+        return $this->stmt->fetchAll($fetchMode, $fetchArgument, $ctorArgs);
     }
 
     public function fetchColumn($columnIndex = 0)
     {
-        return $this->fetchColumn($columnIndex);
+        return $this->stmt->fetchColumn($columnIndex);
     }
 
-    public function getIterator()
+    public function errorCode()
     {
-        return $this->stmt;
+        return $this->stmt->errorCode();
+    }
+
+    public function errorInfo()
+    {
+        return $this->stmt->errorInfo();
+    }
+
+    public function rowCount()
+    {
+        return $this->stmt->rowCount();
     }
 }
 
