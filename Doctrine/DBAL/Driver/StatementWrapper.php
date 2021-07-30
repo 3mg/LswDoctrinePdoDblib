@@ -2,13 +2,18 @@
 
 namespace Lsw\DoctrinePdoDblib\Doctrine\DBAL\Driver;
 
+use Doctrine\DBAL\Driver\Statement;
+
 /**
  */
-class StatementWrapper {
+class StatementWrapper implements \Iterator, Statement {
+
     /** @var \PDOStatement */
     private $stmt;
     private $connection;
     private $driverOptions;
+    private $current;
+    private $key;
 
     private $boundParams = [];
 
@@ -34,6 +39,7 @@ class StatementWrapper {
     }
 
     public function execute ($input_parameters = null) {
+        $this->key = -1;
         $stmt = $this->stmt;
         $params = $input_parameters ? $input_parameters : $this->boundParams;
 
@@ -96,6 +102,79 @@ class StatementWrapper {
     public function bindColumn($column, &$param, $type = null, $maxlen = null, $driverdata = null)
     {
         return $this->stmt->bindColumn($column, $param, $type, $maxlen, $driverdata);
+    }
+
+    public function closeCursor()
+    {
+        return $this->stmt->closeCursor();
+    }
+
+    public function columnCount()
+    {
+        return $this->stmt->columnCount();
+    }
+
+    public function setFetchMode($fetchMode, $arg2 = null, $arg3 = null)
+    {
+        return $this->stmt->setFetchMode($fetchMode, $arg2, $arg3);
+    }
+
+    public function fetch($fetchMode = null, $cursorOrientation = PDO::FETCH_ORI_NEXT, $cursorOffset = 0)
+    {
+        $this->current = $this->stmt->fetch($fetchMode, $cursorOrientation, $cursorOffset);
+        $this->key++;
+
+        return $this->current;
+    }
+
+    public function fetchAll($fetchMode = null, $fetchArgument = null, $ctorArgs = null)
+    {
+        return $this->stmt->fetchAll($fetchMode, $fetchArgument, $ctorArgs);
+    }
+
+    public function fetchColumn($columnIndex = 0)
+    {
+        return $this->stmt->fetchColumn($columnIndex);
+    }
+
+    public function errorCode()
+    {
+        return $this->stmt->errorCode();
+    }
+
+    public function errorInfo()
+    {
+        return $this->stmt->errorInfo();
+    }
+
+    public function rowCount()
+    {
+        return $this->stmt->rowCount();
+    }
+
+    public function current()
+    {
+        return $this->current;
+    }
+
+    public function next()
+    {
+        $this->fetch();
+    }
+
+    public function key()
+    {
+        return $this->key;
+    }
+
+    public function valid()
+    {
+        return true;
+    }
+
+    public function rewind()
+    {
+        $this->execute();
     }
 }
 
