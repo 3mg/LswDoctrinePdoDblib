@@ -9,12 +9,14 @@ use Traversable;
 
 /**
  */
-class StatementWrapper implements Statement {
+class StatementWrapper implements Statement, \Iterator {
 
     /** @var \PDOStatement */
     private $stmt;
     private $connection;
     private $driverOptions;
+    private $current;
+    private $key;
 
     private $boundParams = [];
 
@@ -40,6 +42,7 @@ class StatementWrapper implements Statement {
     }
 
     public function execute ($input_parameters = null) {
+        $this->key = -1;
         $stmt = $this->stmt;
         $params = $input_parameters ? $input_parameters : $this->boundParams;
 
@@ -121,7 +124,10 @@ class StatementWrapper implements Statement {
 
     public function fetch($fetchMode = null, $cursorOrientation = PDO::FETCH_ORI_NEXT, $cursorOffset = 0)
     {
-        return $this->stmt->fetch($fetchMode, $cursorOrientation, $cursorOffset);
+        $this->current = $this->stmt->fetch($fetchMode, $cursorOrientation, $cursorOffset);
+        $this->key++;
+
+        return $this->current;
     }
 
     public function fetchAll($fetchMode = null, $fetchArgument = null, $ctorArgs = null)
@@ -147,6 +153,31 @@ class StatementWrapper implements Statement {
     public function rowCount()
     {
         return $this->stmt->rowCount();
+    }
+
+    public function current()
+    {
+        return $this->current;
+    }
+
+    public function next()
+    {
+        $this->fetch();
+    }
+
+    public function key()
+    {
+        return $this->key;
+    }
+
+    public function valid()
+    {
+        return true;
+    }
+
+    public function rewind()
+    {
+        $this->execute();
     }
 }
 
