@@ -3,10 +3,12 @@
 namespace Lsw\DoctrinePdoDblib\Doctrine\DBAL\Driver;
 
 use Doctrine\DBAL\Driver\ResultStatement;
+use Exception;
+use Traversable;
 
 /**
  */
-class StatementWrapper implements ResultStatement {
+class StatementWrapper implements ResultStatement, \IteratorAggregate {
 
     /** @var \PDOStatement */
     private $stmt;
@@ -129,6 +131,11 @@ class StatementWrapper implements ResultStatement {
     public function fetchColumn($columnIndex = 0)
     {
         return $this->fetchColumn($columnIndex);
+    }
+
+    public function getIterator()
+    {
+        return $this->stmt;
     }
 }
 
