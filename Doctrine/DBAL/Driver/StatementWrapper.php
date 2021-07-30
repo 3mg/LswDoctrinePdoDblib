@@ -2,14 +2,11 @@
 
 namespace Lsw\DoctrinePdoDblib\Doctrine\DBAL\Driver;
 
-use Doctrine\DBAL\Driver\ResultStatement;
 use Doctrine\DBAL\Driver\Statement;
-use Exception;
-use Traversable;
 
 /**
  */
-class StatementWrapper implements Statement, \Iterator {
+class StatementWrapper implements \Iterator, Statement {
 
     /** @var \PDOStatement */
     private $stmt;
