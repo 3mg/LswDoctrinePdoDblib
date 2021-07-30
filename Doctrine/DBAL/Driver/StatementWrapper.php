@@ -2,9 +2,12 @@
 
 namespace Lsw\DoctrinePdoDblib\Doctrine\DBAL\Driver;
 
+use Doctrine\DBAL\Driver\ResultStatement;
+
 /**
  */
-class StatementWrapper {
+class StatementWrapper implements ResultStatement {
+
     /** @var \PDOStatement */
     private $stmt;
     private $connection;
@@ -96,6 +99,36 @@ class StatementWrapper {
     public function bindColumn($column, &$param, $type = null, $maxlen = null, $driverdata = null)
     {
         return $this->stmt->bindColumn($column, $param, $type, $maxlen, $driverdata);
+    }
+
+    public function closeCursor()
+    {
+        return $this->stmt->closeCursor();
+    }
+
+    public function columnCount()
+    {
+        return $this->stmt->columnCount();
+    }
+
+    public function setFetchMode($fetchMode, $arg2 = null, $arg3 = null)
+    {
+        return $this->setFetchMode($fetchMode, $arg2, $arg3);
+    }
+
+    public function fetch($fetchMode = null, $cursorOrientation = PDO::FETCH_ORI_NEXT, $cursorOffset = 0)
+    {
+        return $this->fetch($fetchMode, $cursorOrientation, $cursorOffset);
+    }
+
+    public function fetchAll($fetchMode = null, $fetchArgument = null, $ctorArgs = null)
+    {
+        return $this->fetchAll($fetchMode, $fetchArgument, $ctorArgs);
+    }
+
+    public function fetchColumn($columnIndex = 0)
+    {
+        return $this->fetchColumn($columnIndex);
     }
 }
 
