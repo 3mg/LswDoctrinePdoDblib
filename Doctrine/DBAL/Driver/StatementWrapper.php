@@ -119,7 +119,7 @@ class StatementWrapper implements \Iterator, Statement {
         return $this->stmt->setFetchMode($fetchMode, $arg2, $arg3);
     }
 
-    public function fetch($fetchMode = null, $cursorOrientation = PDO::FETCH_ORI_NEXT, $cursorOffset = 0)
+    public function fetch($fetchMode = null, $cursorOrientation = \PDO::FETCH_ORI_NEXT, $cursorOffset = 0)
     {
         $this->current = $this->stmt->fetch($fetchMode, $cursorOrientation, $cursorOffset);
         $this->key++;
