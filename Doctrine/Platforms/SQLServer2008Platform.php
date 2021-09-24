@@ -171,6 +171,40 @@ class SQLServer2008Platform extends SQLServer
         return $fixed ? ($length ? 'NCHAR(' . $length . ')' : 'NCHAR(255)') : ($length ? 'NVARCHAR(' . $length . ')' : 'NVARCHAR(255)');
     }
 
+
+    /**
+     * {@inheritDoc}
+     */
+    public function getListTableColumnsSQL($table, $database = null)
+    {
+        return "SELECT    col.name,
+                          type.name AS type,
+                          IIF(type.name IN ('nvarchar', 'nchar') AND col.max_length > 0, col.max_length / 2, col.max_length) AS length,
+                          ~col.is_nullable AS notnull,
+                          def.definition AS [default],
+                          col.scale,
+                          col.precision,
+                          col.is_identity AS autoincrement,
+                          col.collation_name AS collation,
+                          CAST(prop.value AS NVARCHAR(MAX)) AS comment -- CAST avoids driver error for sql_variant type
+                FROM      sys.columns AS col
+                JOIN      sys.types AS type
+                ON        col.user_type_id = type.user_type_id
+                JOIN      sys.objects AS obj
+                ON        col.object_id = obj.object_id
+                JOIN      sys.schemas AS scm
+                ON        obj.schema_id = scm.schema_id
+                LEFT JOIN sys.default_constraints def
+                ON        col.default_object_id = def.object_id
+                AND       col.object_id = def.parent_object_id
+                LEFT JOIN sys.extended_properties AS prop
+                ON        obj.object_id = prop.major_id
+                AND       col.column_id = prop.minor_id
+                AND       prop.name = 'MS_Description'
+                WHERE     obj.type = 'U'
+                AND       " . $this->getTableWhereClause($table, 'scm.name', 'obj.name');
+    }
+
     /**
      * @param string $table
      * @param string $column
@@ -294,6 +328,29 @@ class SQLServer2008Platform extends SQLServer
         $query = preg_replace($selectFromPattern, "$1, ROW_NUMBER() OVER ($over) AS doctrine_rownum FROM ", $query, 1);
 
         return sprintf($format, $query, $start, $end);
+    }
+
+    /**
+     * Returns the where clause to filter schema and table name in a query.
+     *
+     * @param string $table        The full qualified name of the table.
+     * @param string $schemaColumn The name of the column to compare the schema to in the where clause.
+     * @param string $tableColumn  The name of the column to compare the table to in the where clause.
+     *
+     * @return string
+     */
+    private function getTableWhereClause($table, $schemaColumn, $tableColumn)
+    {
+        if (strpos($table, '.') !== false) {
+            [$schema, $table] = explode('.', $table);
+            $schema           = $this->quoteStringLiteral($schema);
+            $table            = $this->quoteStringLiteral($table);
+        } else {
+            $schema = 'SCHEMA_NAME()';
+            $table  = $this->quoteStringLiteral($table);
+        }
+
+        return sprintf('(%s = %s AND %s = %s)', $tableColumn, $table, $schemaColumn, $schema);
     }
 }
 
