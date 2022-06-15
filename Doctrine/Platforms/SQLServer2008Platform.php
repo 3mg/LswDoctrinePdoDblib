@@ -289,8 +289,7 @@ class SQLServer2008Platform extends SQLServer
 
                 //Replace dynamic column names with expressions
                 if (!$column['hasTable']) {
-                    preg_match('/(AS .+?\s*,)\s*(.+) AS '.$column['column'].'/', $query, $fieldExpression);
-
+                    preg_match('/(AS .+?\s*,)\s*([^,]+) AS '.$column['column'].'/', $query, $fieldExpression);
                     if (!$fieldExpression) {
                         preg_match('/(|SELECT\s*?)(.+) AS '.$column['column'].'/', $query, $fieldExpression);
                     }
